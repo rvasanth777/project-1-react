@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CREDENTIALS = credentials('project_react')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/rvasanth777/project-1-react.git'
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('Build React App') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+        stage('Login to DockerHub') {
+            steps {
+                sh 'echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t rvasanth777/react-app .'
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push rvasanth777/react-app'
+            }
+        }
+    }
+}
+
